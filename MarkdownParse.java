@@ -11,31 +11,23 @@ public class MarkdownParse {
         // find the next [, then find the ], then find the (, then read link upto next )
         int currentIndex = 0;
         while(currentIndex < markdown.length()) {
-            int openBracket = markdown.indexOf("[", currentIndex);
-            if (openBracket == -1) {
-                break;
-            }
-            int closeBracket = markdown.indexOf("]", openBracket);
-            if (closeBracket == -1) {
-                break;
-            }
-            int openParen = markdown.indexOf("(", closeBracket);
-            if (openParen == -1) {
-                break;
-            }
+            int nextOpenBracket = markdown.indexOf("[", currentIndex);
+            System.out.format("%d\t%d\t%s\n", currentIndex, nextOpenBracket, toReturn);
+            int nextCloseBracket = markdown.indexOf("]", nextOpenBracket);
+            int openParen = markdown.indexOf("(", nextCloseBracket);
             int closeParen = markdown.indexOf(")", openParen);
-            if (closeParen == -1) {
-                break;
+            if(nextOpenBracket == -1 || nextCloseBracket == -1
+                  || closeParen == -1 || openParen == -1) {
+                return toReturn;
             }
-
-            if (closeBracket == openParen - 1 && closeBracket > openBracket &&
-            closeBracket > openBracket + 1 && (openBracket == 0 ||
-            markdown.charAt(openBracket - 1) != '!') && (markdown.charAt(openParen+1) != '(')) {
-                toReturn.add(markdown.substring(openParen + 1, closeParen));
+            String potentialLink = markdown.substring(openParen + 1, closeParen);
+            if(potentialLink.indexOf(" ") == -1 && potentialLink.indexOf("\n") == -1) {
+                toReturn.add(potentialLink);
                 currentIndex = closeParen + 1;
-            } else {
-                currentIndex = closeBracket + 1;
-            }            
+            }
+            else {
+                currentIndex = currentIndex + 1;
+            }
         }
         return toReturn;
     }
